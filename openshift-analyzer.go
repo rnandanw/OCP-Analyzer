@@ -17,15 +17,15 @@ const (
 	colorRed     = "\033[0;31m"
 	colorGreen   = "\033[0;32m"
 	colorYellow  = "\033[0;33m"
-	colorPurple  = "\033[0;35m"
+	colorBlue    = "\033[0;34m"
 	colorCyan    = "\033[0;36m"
 	colorReset   = "\033[0m"
 	bold         = "\033[1m"
 	regular      = "\033[0m"
-	checkMark    = "✓"
-	crossMark    = "✗"
-	warningMark  = "⚠"
-	infoMark     = "ℹ"
+	statusOK     = "[OK]"
+	statusError  = "[ERROR]"
+	statusWarn   = "[WARNING]"
+	statusInfo   = "[INFO]"
 )
 
 type Config struct {
@@ -125,7 +125,9 @@ func parseFlags() {
 }
 
 func printUsage() {
-	fmt.Printf("%s%sOpenShift Must-Gather Analyzer%s\n\n", bold, colorCyan, regular)
+	fmt.Println()
+	fmt.Println("OpenShift Must-Gather Analyzer")
+	fmt.Println()
 	fmt.Println("USAGE:")
 	fmt.Printf("  %s [OPTIONS] <must-gather-directory>\n\n", os.Args[0])
 	fmt.Println("OPTIONS:")
@@ -138,10 +140,12 @@ func printUsage() {
 	fmt.Println("        Enable verbose output with detailed troubleshooting")
 	fmt.Println("  -no-color")
 	fmt.Println("        Disable colored output")
-	fmt.Println("\nEXAMPLES:")
+	fmt.Println()
+	fmt.Println("EXAMPLES:")
 	fmt.Printf("  %s /path/to/must-gather\n", os.Args[0])
 	fmt.Printf("  %s -mode issues /path/to/must-gather\n", os.Args[0])
 	fmt.Printf("  %s -mode health -verbose /path/to/must-gather\n", os.Args[0])
+	fmt.Println()
 }
 
 func validate() error {
@@ -156,40 +160,40 @@ func validate() error {
 	}
 
 	if !commandExists("omg") {
-		return fmt.Errorf("%s omg command not found!\n\n%sTroubleshooting:%s\n"+
+		return fmt.Errorf("%s omg command not found\n\nTroubleshooting:\n"+
 			"  1. Install o-must-gather: pip install o-must-gather\n"+
 			"  2. Verify installation: omg --version\n"+
 			"  3. Visit: https://pypi.org/project/o-must-gather\n"+
 			"  4. For Python issues: ensure pip is installed (python3 -m pip --version)",
-			crossMark, colorYellow, colorReset)
+			statusError)
 	}
 	printSuccess("omg command found")
 
 	if !commandExists("jq") {
-		return fmt.Errorf("%s jq command not found!\n\n%sTroubleshooting:%s\n"+
+		return fmt.Errorf("%s jq command not found\n\nTroubleshooting:\n"+
 			"  Red Hat/Fedora:  sudo dnf install jq\n"+
 			"  Debian/Ubuntu:   sudo apt install jq\n"+
 			"  MacOS:           brew install jq\n"+
 			"  Manual install:  https://stedolan.github.io/jq/download",
-			crossMark, colorYellow, colorReset)
+			statusError)
 	}
 	printSuccess("jq command found")
 
 	if !commandExists("column") {
-		return fmt.Errorf("%s column command not found!\n\n%sTroubleshooting:%s\n"+
+		return fmt.Errorf("%s column command not found\n\nTroubleshooting:\n"+
 			"  Red Hat/Fedora:  sudo dnf install util-linux\n"+
 			"  Debian/Ubuntu:   sudo apt install bsdmainutils\n"+
 			"  Note: Usually pre-installed on most Linux distributions",
-			crossMark, colorYellow, colorReset)
+			statusError)
 	}
 	printSuccess("column command found")
 
 	if _, err := os.Stat(cfg.mustGatherPath); os.IsNotExist(err) {
-		return fmt.Errorf("%s must-gather directory does not exist: %s\n\n%sTroubleshooting:%s\n"+
+		return fmt.Errorf("%s must-gather directory does not exist: %s\n\nTroubleshooting:\n"+
 			"  1. Verify the path is correct\n"+
 			"  2. Ensure you have read permissions\n"+
 			"  3. Check if the must-gather was extracted properly",
-			crossMark, cfg.mustGatherPath, colorYellow, colorReset)
+			statusError, cfg.mustGatherPath)
 	}
 	printSuccess(fmt.Sprintf("must-gather directory found: %s", cfg.mustGatherPath))
 
@@ -198,12 +202,12 @@ func validate() error {
 
 	cmd := exec.Command("omg", "use", cfg.mustGatherPath)
 	if output, err := cmd.CombinedOutput(); err != nil {
-		return fmt.Errorf("%s failed to set omg context: %v\n\nOutput: %s\n\n%sTroubleshooting:%s\n"+
+		return fmt.Errorf("%s failed to set omg context: %v\n\nOutput: %s\n\nTroubleshooting:\n"+
 			"  1. Verify must-gather structure is intact\n"+
 			"  2. Check if must-gather was collected properly\n"+
 			"  3. Try: omg use %s manually\n"+
 			"  4. Ensure must-gather is uncompressed",
-			crossMark, err, string(output), colorYellow, colorReset, cfg.mustGatherPath)
+			statusError, err, string(output), cfg.mustGatherPath)
 	}
 	printSuccess("omg context initialized")
 
@@ -217,17 +221,14 @@ func commandExists(cmd string) bool {
 }
 
 func printBanner() {
-	banner := `
-╔══════════════════════════════════════════════════════════════╗
-║                                                              ║
-║   OpenShift Must-Gather Comprehensive Analyzer v2.0         ║
-║   Cluster Health & Issue Detection Tool                     ║
-║                                                              ║
-╚══════════════════════════════════════════════════════════════╝
-`
-	printColored(colorCyan, banner)
-	fmt.Printf("Mode: %s%s%s | Verbose: %v | Must-Gather: %s\n\n",
-		bold, cfg.mode, regular, cfg.verbose, filepath.Base(cfg.mustGatherPath))
+	fmt.Println()
+	fmt.Println("================================================================")
+	fmt.Println("OpenShift Must-Gather Comprehensive Analyzer v2.0")
+	fmt.Println("Cluster Health & Issue Detection Tool")
+	fmt.Println("================================================================")
+	fmt.Printf("\nAnalysis Mode: %s\n", cfg.mode)
+	fmt.Printf("Verbose Output: %v\n", cfg.verbose)
+	fmt.Printf("Must-Gather Path: %s\n\n", cfg.mustGatherPath)
 }
 
 func runFullAnalysis() {
@@ -367,22 +368,22 @@ func etcdEndpointHealth() {
 	}
 
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
-	fmt.Fprintln(w, "ENDPOINT\tHEALTH\tTOOK")
+	fmt.Fprintln(w, "ENDPOINT\tHEALTH\tRESPONSE TIME")
 	fmt.Fprintln(w, strings.Repeat("-", 60))
 
 	allHealthy := true
 	for _, h := range health {
-		status := checkMark
+		status := "healthy"
 		if !h.Health {
-			status = crossMark
+			status = "unhealthy"
 			allHealthy = false
 		}
-		fmt.Fprintf(w, "%s\t%s %v\t%s\n", h.Endpoint, status, h.Health, h.Took)
+		fmt.Fprintf(w, "%s\t%s\t%s\n", h.Endpoint, status, h.Took)
 	}
 	w.Flush()
 
 	if !allHealthy {
-		printWarning("\nSome ETCD endpoints are unhealthy!")
+		printWarning("Some ETCD endpoints are unhealthy")
 		printTroubleshoot([]string{
 			"Check ETCD pod logs for errors",
 			"Verify network connectivity between ETCD members",
@@ -391,7 +392,7 @@ func etcdEndpointHealth() {
 			"Consult: https://docs.openshift.com/container-platform/latest/backup_and_restore/control_plane_backup_and_restore/disaster_recovery/about-disaster-recovery.html",
 		})
 	} else if cfg.verbose {
-		printSuccess("\nAll ETCD endpoints are healthy")
+		printSuccess("All ETCD endpoints are healthy")
 	}
 }
 
@@ -441,9 +442,9 @@ func etcdEndpointStatus() {
 	w.Flush()
 
 	if cfg.verbose {
-		printInfo("\nETCD Status Analysis:")
-		fmt.Printf("  • Leader ID: %d\n", leaderID)
-		fmt.Printf("  • Total members: %d\n", len(statuses))
+		printInfo("ETCD Status Analysis")
+		fmt.Printf("  Leader ID: %d\n", leaderID)
+		fmt.Printf("  Total members: %d\n", len(statuses))
 
 		maxDBSize := int64(0)
 		for _, size := range dbSizes {
@@ -453,7 +454,7 @@ func etcdEndpointStatus() {
 		}
 		maxDBSizeMB := float64(maxDBSize) / 1024 / 1024
 		if maxDBSizeMB > 8000 {
-			printWarning(fmt.Sprintf("  • Large ETCD database detected (%.2f MB)", maxDBSizeMB))
+			printWarning(fmt.Sprintf("Large ETCD database detected (%.2f MB)", maxDBSizeMB))
 			printTroubleshoot([]string{
 				"Consider ETCD defragmentation if DB size > 8GB",
 				"Review object counts and resource quotas",
@@ -495,7 +496,7 @@ func etcdMemberList() {
 	w.Flush()
 
 	if cfg.verbose && len(memberList.Members) != 3 {
-		printWarning(fmt.Sprintf("\nNon-standard ETCD member count: %d", len(memberList.Members)))
+		printWarning(fmt.Sprintf("Non-standard ETCD member count: %d", len(memberList.Members)))
 		printInfo("Recommended: 3 or 5 members for HA clusters")
 	}
 }
@@ -608,7 +609,7 @@ func clusterWideProxy() {
 	}
 
 	if hasProxy && cfg.verbose {
-		printInfo("\nProxy configuration detected - ensure no-proxy settings include cluster networks")
+		printInfo("Proxy configuration detected - ensure no-proxy settings include cluster networks")
 	}
 }
 
@@ -661,21 +662,21 @@ func machineconfiguration() {
 		}
 
 		if hostname != "" {
-			status := checkMark
+			status := "synchronized"
 			if current != desired {
-				status = warningMark
+				status = "drift detected"
 				mismatchFound = true
 			}
-			fmt.Printf("%s %s\n", status, hostname)
-			fmt.Printf("  Current:  %s\n", current)
-			fmt.Printf("  Desired:  %s\n\n", desired)
+			fmt.Printf("Node: %s - Status: %s\n", hostname, status)
+			fmt.Printf("  Current Config:  %s\n", current)
+			fmt.Printf("  Desired Config:  %s\n\n", desired)
 		}
 	}
 
 	if mismatchFound {
-		printWarning("Configuration drift detected!")
+		printWarning("Configuration drift detected")
 		printTroubleshoot([]string{
-			"Some nodes have current config != desired config",
+			"Some nodes have current config not matching desired config",
 			"Check MachineConfigPool status",
 			"Review machine-config-daemon logs",
 			"Node may be updating or stuck in update",
@@ -713,7 +714,7 @@ func pods() {
 	}
 
 	if failingCount > 1 && cfg.verbose {
-		printWarning(fmt.Sprintf("\nFound %d failing pods", failingCount-1))
+		printWarning(fmt.Sprintf("Found %d failing pods", failingCount-1))
 		printInfo("Review pod logs and events for root cause analysis")
 	}
 }
@@ -745,7 +746,7 @@ func podRestart() {
 	}
 
 	if highRestartCount > 0 {
-		printWarning(fmt.Sprintf("\n%d pods with excessive restarts detected", highRestartCount))
+		printWarning(fmt.Sprintf("%d pods with excessive restarts detected", highRestartCount))
 		printTroubleshoot([]string{
 			"High restart count indicates instability",
 			"Check pod logs for crash reasons",
@@ -860,9 +861,9 @@ func degradedOperators() {
 	}
 
 	if healthyOperators {
-		printSuccess("\nAll cluster operators are working fine!")
+		printSuccess("All cluster operators are working fine")
 	} else {
-		printError(fmt.Sprintf("\n%d degraded operators found!", degradedCount))
+		printError(fmt.Sprintf("%d degraded operators found", degradedCount))
 		printTroubleshoot([]string{
 			"Check operator logs: oc logs -n <namespace> <pod>",
 			"Review operator conditions in detailed section below",
@@ -902,7 +903,7 @@ func degradedOperatorsDescription() {
 	}
 
 	if len(degradedOps) == 0 {
-		printSuccess("Not required - all operators are available!")
+		printSuccess("Not required - all operators are available")
 		return
 	}
 
@@ -946,9 +947,9 @@ func degradedMCP() {
 	}
 
 	if healthyMCPs {
-		printSuccess("\nNo machine-config-pool degraded!")
+		printSuccess("No machine-config-pool degraded")
 	} else {
-		printError(fmt.Sprintf("\n%d degraded machine-config-pools found!", degradedCount))
+		printError(fmt.Sprintf("%d degraded machine-config-pools found", degradedCount))
 		printTroubleshoot([]string{
 			"Check MCP conditions for specific errors",
 			"Review machine-config-daemon logs on affected nodes",
@@ -988,7 +989,7 @@ func degradedMCPDescription() {
 	}
 
 	if len(degradedMCPs) == 0 {
-		printSuccess("Not required - all machine-config-pools are available!")
+		printSuccess("Not required - all machine-config-pools are available")
 		return
 	}
 
@@ -1028,9 +1029,9 @@ func machinePhase() {
 	}
 
 	if allRunning {
-		printSuccess("\nAll machines are Running fine or BareMetal UPI cluster (no machine-api)")
+		printSuccess("All machines are Running fine or BareMetal UPI cluster (no machine-api)")
 	} else {
-		printError(fmt.Sprintf("\n%d machines not in Running state!", degradedCount))
+		printError(fmt.Sprintf("%d machines not in Running state", degradedCount))
 		printTroubleshoot([]string{
 			"Check machine controller logs",
 			"Verify cloud provider credentials",
@@ -1102,9 +1103,9 @@ func degradedNodes() {
 	}
 
 	if allReady {
-		printSuccess("\nAll nodes are in Ready state!")
+		printSuccess("All nodes are in Ready state")
 	} else {
-		printError(fmt.Sprintf("\n%d nodes not in Ready state!", degradedCount))
+		printError(fmt.Sprintf("%d nodes not in Ready state", degradedCount))
 		printTroubleshoot([]string{
 			"SSH to node and check system logs: journalctl -xe",
 			"Check kubelet status: systemctl status kubelet",
@@ -1141,7 +1142,7 @@ func degradedNodesDescription() {
 	}
 
 	if len(degradedNodes) == 0 {
-		printSuccess("Not required - all nodes are in Ready state!")
+		printSuccess("Not required - all nodes are in Ready state")
 		return
 	}
 
@@ -1163,10 +1164,10 @@ func degradedNodesDescription() {
 
 		lines := strings.Split(string(content), "\n")
 
-		printInfo("Node Metadata:")
+		fmt.Println("Node Metadata:")
 		printSectionBetween(lines, "apiVersion", "daemonEndpoints", false, false)
 
-		printInfo("\nNode Status:")
+		fmt.Println("\nNode Status:")
 		printSectionBetween(lines, "nodeInfo", "", true, false)
 	}
 }
@@ -1197,18 +1198,17 @@ func podsNotRunning() {
 	}
 
 	if allRunning {
-		printSuccess("\nAll pods are in Running state!")
+		printSuccess("All pods are in Running state")
 	} else {
-		printError(fmt.Sprintf("\n%d pods not in Running/Succeeded state!", failingCount))
+		printError(fmt.Sprintf("%d pods not in Running/Succeeded state", failingCount))
 		printTroubleshoot([]string{
 			"Check pod logs: oc logs <pod> -n <namespace>",
 			"Check pod events: oc describe pod <pod> -n <namespace>",
-			"Common causes:",
-			"  - ImagePullBackOff: Check image registry access",
-			"  - CrashLoopBackOff: Application error, check logs",
-			"  - Pending: Resource constraints or scheduling issues",
-			"  - Error/Failed: Check pod logs and events",
-			"  - OOMKilled: Increase memory limits",
+			"ImagePullBackOff: Check image registry access",
+			"CrashLoopBackOff: Application error, check logs",
+			"Pending: Resource constraints or scheduling issues",
+			"Error/Failed: Check pod logs and events",
+			"OOMKilled: Increase memory limits",
 		})
 	}
 }
@@ -1238,7 +1238,7 @@ func mcdPodLogs() {
 	}
 
 	if len(degradedNodes) == 0 {
-		printSuccess("Not required - all nodes are in Ready state!")
+		printSuccess("Not required - all nodes are in Ready state")
 		return
 	}
 
@@ -1388,72 +1388,92 @@ func runOMGCommand(args ...string) {
 }
 
 func printHeader(text string) {
-	fmt.Printf("\n%s%s╔%s╗%s\n", bold, colorCyan, strings.Repeat("═", len(text)+2), regular)
-	fmt.Printf("%s%s║ %s ║%s\n", bold, colorCyan, text, regular)
-	fmt.Printf("%s%s╚%s╝%s\n\n", bold, colorCyan, strings.Repeat("═", len(text)+2), regular)
+	fmt.Println()
+	fmt.Println(strings.Repeat("=", 80))
+	fmt.Printf("%s\n", text)
+	fmt.Println(strings.Repeat("=", 80))
+	fmt.Println()
 }
 
 func printSection(text string) {
-	fmt.Printf("\n%s%s▶ %s%s\n", bold, colorYellow, text, regular)
-	fmt.Println(strings.Repeat("─", 80))
+	fmt.Println()
+	fmt.Println(text)
+	fmt.Println(strings.Repeat("-", 80))
 }
 
 func printSubSection(text string) {
-	fmt.Printf("\n%s%s● %s%s\n", colorPurple, bold, text, regular)
+	fmt.Printf("\n%s\n", text)
+	fmt.Println(strings.Repeat("-", 40))
 }
 
 func printSuccess(format string, args ...interface{}) {
 	msg := fmt.Sprintf(format, args...)
-	fmt.Printf("%s%s %s%s\n", colorGreen, checkMark, msg, colorReset)
+	if cfg.noColor {
+		fmt.Printf("%s %s\n", statusOK, msg)
+	} else {
+		fmt.Printf("%s%s %s%s\n", colorGreen, statusOK, msg, colorReset)
+	}
 }
 
 func printWarning(format string, args ...interface{}) {
 	msg := fmt.Sprintf(format, args...)
-	fmt.Printf("%s%s %s%s\n", colorYellow, warningMark, msg, colorReset)
+	if cfg.noColor {
+		fmt.Printf("%s %s\n", statusWarn, msg)
+	} else {
+		fmt.Printf("%s%s %s%s\n", colorYellow, statusWarn, msg, colorReset)
+	}
 }
 
 func printError(format string, args ...interface{}) {
 	msg := fmt.Sprintf(format, args...)
-	fmt.Printf("%s%s %s%s\n", colorRed, crossMark, msg, colorReset)
+	if cfg.noColor {
+		fmt.Printf("%s %s\n", statusError, msg)
+	} else {
+		fmt.Printf("%s%s %s%s\n", colorRed, statusError, msg, colorReset)
+	}
 }
 
 func printInfo(format string, args ...interface{}) {
 	msg := fmt.Sprintf(format, args...)
-	fmt.Printf("%s%s %s%s\n", colorCyan, infoMark, msg, colorReset)
-}
-
-func printColored(color, text string) {
 	if cfg.noColor {
-		fmt.Print(text)
+		fmt.Printf("%s %s\n", statusInfo, msg)
 	} else {
-		fmt.Printf("%s%s%s", color, text, colorReset)
+		fmt.Printf("%s%s %s%s\n", colorBlue, statusInfo, msg, colorReset)
 	}
 }
+
 
 func printTroubleshoot(steps []string) {
 	if !cfg.verbose {
 		return
 	}
-	fmt.Printf("\n%s%s Troubleshooting Steps:%s\n", colorYellow, warningMark, colorReset)
-	for _, step := range steps {
-		fmt.Printf("  %s\n", step)
+	fmt.Printf("\n%s Troubleshooting Steps:\n", statusInfo)
+	for i, step := range steps {
+		fmt.Printf("  %d. %s\n", i+1, step)
 	}
 }
 
 func printSummary() {
-	fmt.Printf("\n\n%s%s", bold, colorCyan)
-	fmt.Println("╔════════════════════════════════════════════════════════════════╗")
-	fmt.Println("║                     ANALYSIS COMPLETE                          ║")
-	fmt.Println("╚════════════════════════════════════════════════════════════════╝")
-	fmt.Printf("%s\n", regular)
+	fmt.Println()
+	fmt.Println()
+	fmt.Println(strings.Repeat("=", 80))
+	fmt.Println("ANALYSIS COMPLETE")
+	fmt.Println(strings.Repeat("=", 80))
+	fmt.Println()
 
-	fmt.Println("\nNext Steps:")
+	fmt.Println("Next Steps:")
 	fmt.Println("  1. Review all sections marked with warnings or errors")
 	fmt.Println("  2. Check detailed descriptions for degraded components")
 	fmt.Println("  3. Review pod and component logs for specific errors")
 	fmt.Println("  4. Consult OpenShift documentation for specific issues")
 	fmt.Println("  5. For production issues, open a Red Hat support case")
 
-	fmt.Printf("\n%sRe-run with -verbose flag for detailed troubleshooting guidance%s\n", colorYellow, colorReset)
-	fmt.Printf("%sRe-run with -mode issues to focus on problem identification%s\n\n", colorYellow, colorReset)
+	if !cfg.verbose {
+		fmt.Println()
+		fmt.Println("Tip: Re-run with -verbose flag for detailed troubleshooting guidance")
+	}
+	if cfg.mode != "issues" {
+		fmt.Println("Tip: Re-run with -mode issues to focus on problem identification")
+	}
+	fmt.Println()
 }
