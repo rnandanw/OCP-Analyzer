@@ -1,6 +1,6 @@
 # OpenShift Must-Gather Comprehensive Analyzer
 
-A powerful, all-in-one Go tool that combines cluster health analysis and issue identification for OpenShift must-gather bundles. This tool merges the functionality of two analysis scripts with enhanced troubleshooting guidance and detailed diagnostics.
+A powerful, all-in-one Go tool that combines cluster health analysis and issue identification for OpenShift must-gather bundles.
 
 ## 🌟 Features
 
@@ -290,12 +290,6 @@ omg use /path/to/must-gather
 # Verify
 omg get nodes
 ```
-
-## 🤝 Contributing
-
-This tool combines functionality from:
-- https://github.com/ay-garg/must-gather-analysis
-- https://github.com/ay-garg/issue-identify-must-gather
 
 ## 📄 License
 
