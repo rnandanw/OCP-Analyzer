@@ -1,6 +1,6 @@
 # Quick Start Guide - OpenShift Analyzer
 
-## ⚡ 60-Second Setup
+## 60-Second Setup
 
 ```bash
 # 1. Install prerequisites
@@ -14,13 +14,13 @@ go build -o openshift-analyzer openshift-analyzer.go
 ./openshift-analyzer /path/to/must-gather
 ```
 
-## 🎯 Most Common Commands
+## Most Common Commands
 
 ```bash
 # Quick health check
 ./openshift-analyzer -mode health /path/to/must-gather
 
-# Find what's broken
+# Find what is broken
 ./openshift-analyzer -mode issues /path/to/must-gather
 
 # Full analysis with troubleshooting tips
@@ -30,42 +30,42 @@ go build -o openshift-analyzer openshift-analyzer.go
 ./openshift-analyzer -no-color /path/to/must-gather > report.txt
 ```
 
-## 🔍 What to Look For in Output
+## Understanding Output Status
 
-### ✓ Green Checkmarks
-- Everything is healthy
-- No action needed
+### Status Indicators
 
-### ⚠ Yellow Warnings
-- Potential issues
-- Review recommendations
-- May need attention
+| Indicator | Meaning | Action Required |
+|-----------|---------|-----------------|
+| `[OK]` | Everything is healthy | No action needed |
+| `[WARNING]` | Potential issues | Review recommendations, may need attention |
+| `[ERROR]` | Critical problems | Immediate attention required |
+| `[INFO]` | Informational | Context and explanations |
 
-### ✗ Red X Marks
-- Critical problems
-- Immediate attention required
-- Check detailed output below each section
+### Color Coding (when enabled)
 
-### ℹ Blue Info
-- Informational messages
-- Context and explanations
+- Green text: OK status
+- Yellow text: WARNING status
+- Red text: ERROR status
+- Blue text: INFO status
 
-## 📊 Key Sections to Review
+Note: Colors can be disabled with `-no-color` flag for better accessibility or when redirecting to files.
+
+## Key Sections to Review
 
 1. **ETCD Endpoint Health** - Must all be healthy for cluster stability
-2. **Degraded Operators** - Any non-green operators need investigation
-3. **Degraded Nodes** - Nodes must be Ready
+2. **Degraded Operators** - Any non-True status needs investigation
+3. **Degraded Nodes** - Nodes must be in Ready state
 4. **Failing Pods** - Investigate CrashLoopBackOff, ImagePullBackOff
 5. **MCP Status** - Should be Updated=True, Updating=False, Degraded=False
 
-## 🚨 Critical Issues (Act Immediately)
+## Critical Issues (Act Immediately)
 
-- **ETCD unhealthy** → Cluster at risk
-- **Multiple operators degraded** → Core functionality impacted
-- **Master nodes NotReady** → Control plane compromised
-- **MCP degraded** → Cannot update cluster
+- **ETCD unhealthy** - Cluster at risk
+- **Multiple operators degraded** - Core functionality impacted
+- **Master nodes NotReady** - Control plane compromised
+- **MCP degraded** - Cannot update cluster
 
-## 💡 Pro Tips
+## Pro Tips
 
 ### Before Opening Support Case
 
@@ -96,9 +96,9 @@ oc adm must-gather --dest-dir=/tmp/mg-$(date +%Y%m%d)
 ./openshift-analyzer -mode issues -verbose /path/to/must-gather
 ```
 
-## 🔧 Common Problems & Solutions
+## Common Problems and Solutions
 
-### Tool Won't Run
+### Tool Will Not Run
 
 ```bash
 # Check prerequisites
@@ -107,7 +107,7 @@ which omg jq column go
 # If missing, install them (see README)
 ```
 
-### "Must-gather not found"
+### Must-gather not found
 
 ```bash
 # Verify path
@@ -129,13 +129,14 @@ omg get nodes
 # Then run analyzer again
 ```
 
-## 📖 More Information
+## More Information
 
 - Full documentation: `README-analyzer.md`
 - OpenShift docs: https://docs.openshift.com
 - Red Hat support: https://access.redhat.com
+- IBM Design Language: https://www.ibm.com/design/language/
 
-## 🎓 Understanding Modes
+## Understanding Modes
 
 | Mode | When to Use | Output |
 |------|-------------|--------|
@@ -143,7 +144,7 @@ omg get nodes
 | `issues` | Incident response, finding problems | Only degraded/failed components |
 | `full` | Complete analysis, support cases | Everything (health + issues) |
 
-## 📞 Getting Help
+## Getting Help
 
 1. **Tool Issues**: Check README troubleshooting section
 2. **Cluster Issues**: Review tool recommendations
@@ -151,4 +152,6 @@ omg get nodes
 
 ---
 
-**Remember**: Run with `-verbose` flag for detailed troubleshooting guidance!
+**Remember**: Run with `-verbose` flag for detailed troubleshooting guidance
+
+**Accessibility**: Use `-no-color` flag when redirecting output or for better screen reader compatibility
