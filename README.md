@@ -1,8 +1,8 @@
 # OpenShift Must-Gather Comprehensive Analyzer
 
-A powerful, all-in-one Go tool that combines cluster health analysis and issue identification for OpenShift must-gather bundles.
+A professional, accessible Go tool that combines cluster health analysis and issue identification for OpenShift must-gather bundles.
 
-## 🌟 Features
+## Features
 
 ### Dual Analysis Modes
 
@@ -27,14 +27,15 @@ A powerful, all-in-one Go tool that combines cluster health analysis and issue i
 
 ### Enhanced Features
 
-✅ **Rich Troubleshooting Guidance** - Context-aware recommendations for every issue  
-✅ **Color-Coded Output** - Visual indicators for status (✓ ✗ ⚠ ℹ)  
-✅ **Verbose Mode** - Detailed explanations and troubleshooting steps  
-✅ **Smart Detection** - Automatic identification of common problems  
-✅ **Comprehensive Checks** - Configuration drift, resource issues, component health  
-✅ **Actionable Recommendations** - Specific commands and next steps  
+- **Professional Output** - Clean, text-based status indicators [OK], [ERROR], [WARNING], [INFO]
+- **Accessible Design** - No symbol dependencies, screen-reader friendly
+- **Rich Troubleshooting** - Context-aware recommendations for every issue
+- **Color-Coded Display** - Optional colored output (can be disabled with -no-color)
+- **Verbose Mode** - Detailed explanations and troubleshooting steps
+- **Smart Detection** - Automatic identification of common problems
+- **Actionable Recommendations** - Specific commands and next steps
 
-## 📋 Prerequisites
+## Prerequisites
 
 ### Required Tools
 
@@ -70,7 +71,7 @@ A powerful, all-in-one Go tool that combines cluster health analysis and issue i
    # Download from https://go.dev/dl/
    ```
 
-## 🚀 Installation
+## Installation
 
 ### Option 1: Build from Source
 
@@ -95,7 +96,7 @@ sudo mv openshift-analyzer /usr/local/bin/
 go run openshift-analyzer.go [OPTIONS] <must-gather-directory>
 ```
 
-## 📖 Usage
+## Usage
 
 ### Basic Usage
 
@@ -140,7 +141,7 @@ go run openshift-analyzer.go [OPTIONS] <must-gather-directory>
 ./openshift-analyzer -no-color /data/must-gather-2026-05-04 > cluster-report.txt
 ```
 
-## 📊 Analysis Sections
+## Analysis Sections
 
 ### Health Analysis Includes
 
@@ -164,15 +165,58 @@ go run openshift-analyzer.go [OPTIONS] <must-gather-directory>
 5. **Pod Failures** - Comprehensive pod failure analysis
 6. **MCD Logs** - Machine-config-daemon logs for degraded nodes
 
-## 🎯 Troubleshooting Features
+## Output Format
+
+### Status Indicators
+
+The tool uses clear text-based status indicators:
+
+- `[OK]` - Healthy/Success (displayed in green when color is enabled)
+- `[ERROR]` - Failed/Critical issue (displayed in red when color is enabled)
+- `[WARNING]` - Warning/Degraded state (displayed in yellow when color is enabled)
+- `[INFO]` - Informational message (displayed in blue when color is enabled)
+
+### Sample Output
+
+```
+================================================================
+OpenShift Must-Gather Comprehensive Analyzer v2.0
+Cluster Health & Issue Detection Tool
+================================================================
+
+Analysis Mode: full
+Verbose Output: true
+Must-Gather Path: /data/must-gather-2026-05-04
+
+[INFO] Validating prerequisites...
+[OK] omg command found
+[OK] jq command found
+[OK] column command found
+[OK] must-gather directory found: /data/must-gather-2026-05-04
+[OK] omg context initialized
+
+================================================================
+CLUSTER HEALTH ANALYSIS
+================================================================
+
+Cluster Infrastructure Details
+--------------------------------------------------------------------------------
+  apiServer: https://api.cluster.example.com:6443
+  platform: AWS
+  platformStatus:
+    type: AWS
+...
+```
+
+## Troubleshooting Features
 
 ### Automatic Detection
 
 - ETCD health issues with quorum analysis
 - Configuration drift (current vs desired configs)
 - Resource exhaustion indicators
-- High restart counts (>10 restarts)
-- Large ETCD database warnings (>8GB)
+- High restart counts (more than 10 restarts)
+- Large ETCD database warnings (greater than 8GB)
 
 ### Context-Aware Recommendations
 
@@ -186,17 +230,17 @@ Each issue includes:
 ### Example Troubleshooting Output
 
 ```
-⚠ Some ETCD endpoints are unhealthy!
+[WARNING] Some ETCD endpoints are unhealthy
 
-ℹ Troubleshooting Steps:
-  Check ETCD pod logs for errors
-  Verify network connectivity between ETCD members
-  Check master node resources (CPU, memory, disk)
-  Review ETCD certificates and authentication
-  Consult: https://docs.openshift.com/container-platform/latest/backup_and_restore/...
+[INFO] Troubleshooting Steps:
+  1. Check ETCD pod logs for errors
+  2. Verify network connectivity between ETCD members
+  3. Check master node resources (CPU, memory, disk)
+  4. Review ETCD certificates and authentication
+  5. Consult: https://docs.openshift.com/container-platform/latest/backup_and_restore/...
 ```
 
-## 🔍 Common Use Cases
+## Common Use Cases
 
 ### 1. Pre-Upgrade Health Check
 
@@ -208,7 +252,7 @@ Each issue includes:
 ### 2. Incident Response
 
 ```bash
-# Quickly identify what's broken
+# Quickly identify what is broken
 ./openshift-analyzer -mode issues /path/to/must-gather
 ```
 
@@ -226,46 +270,14 @@ Each issue includes:
 ./openshift-analyzer -mode health /path/to/must-gather
 ```
 
-## 📝 Output Examples
-
-### Status Indicators
-
-- ✓ (Green) - Healthy/Success
-- ✗ (Red) - Failed/Error
-- ⚠ (Yellow) - Warning/Degraded
-- ℹ (Cyan) - Information
-
-### Sample Output
-
-```
-╔══════════════════════════════════════════════════════════════╗
-║   OpenShift Must-Gather Comprehensive Analyzer v2.0         ║
-║   Cluster Health & Issue Detection Tool                     ║
-╚══════════════════════════════════════════════════════════════╝
-
-✓ omg command found
-✓ jq command found
-✓ column command found
-✓ must-gather directory found: /data/must-gather-2026-05-04
-✓ omg context initialized
-
-▶ Cluster Infrastructure Details
-────────────────────────────────────────────────────────────────
-  apiServer: https://api.cluster.example.com:6443
-  platform: AWS
-  platformStatus:
-    type: AWS
-...
-```
-
-## 🐛 Troubleshooting the Tool
+## Troubleshooting the Tool
 
 ### Prerequisites Not Found
 
 If you get errors about missing commands:
 
 ```bash
-# Check what's installed
+# Check what is installed
 which omg jq column
 
 # Install missing tools (see Prerequisites section)
@@ -291,18 +303,26 @@ omg use /path/to/must-gather
 omg get nodes
 ```
 
-## 📄 License
+## Design Principles
+
+- **Clarity** - Clear, unambiguous text-based status indicators
+- **Accessibility** - No symbol dependencies, works with screen readers
+- **Professionalism** - Clean, structured output format
+- **Consistency** - Uniform formatting and messaging throughout
+- **Usability** - Intuitive command-line interface
+
+## License
 
 Open source - feel free to modify and distribute
 
-## 🔗 Useful Links
+## Useful Links
 
 - [OpenShift Must-Gather](https://docs.openshift.com/container-platform/latest/support/gathering-cluster-data.html)
 - [o-must-gather Tool](https://pypi.org/project/o-must-gather/)
 - [OpenShift Troubleshooting](https://docs.openshift.com/container-platform/latest/support/troubleshooting/index.html)
 - [ETCD Operations](https://docs.openshift.com/container-platform/latest/backup_and_restore/control_plane_backup_and_restore/disaster_recovery/about-disaster-recovery.html)
 
-## 📞 Support
+## Support
 
 For issues with this tool:
 - Check the troubleshooting section above
@@ -318,4 +338,5 @@ For OpenShift cluster issues:
 
 **Version:** 2.0  
 **Last Updated:** 2026-05-04  
-**Compatibility:** OpenShift 4.x must-gather bundles
+**Compatibility:** OpenShift 4.x must-gather bundles  
+**Design Standard:** IBM Design Language
